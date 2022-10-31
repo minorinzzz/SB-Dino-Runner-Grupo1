@@ -1,3 +1,4 @@
+from dino_runner.components.dinosaur import Dinosaur
 import pygame
 
 from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS
@@ -10,6 +11,7 @@ class Game:
         pygame.display.set_icon(ICON)
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
+        self.dinosaur = Dinosaur()
         self.playing = False
         self.game_speed = 20
         self.x_pos_bg = 0
@@ -26,24 +28,25 @@ class Game:
 
     def events(self):
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT: #Reconoce la X de la ventana
                 self.playing = False
 
     def update(self):
-        pass
+        self.dinosaur.update()
 
     def draw(self):
         self.clock.tick(FPS)
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((255, 255, 255)) #color de fondo
         self.draw_background()
+        self.dinosaur.draw(self.screen)
         pygame.display.update()
         pygame.display.flip()
 
     def draw_background(self):
         image_width = BG.get_width()
-        self.screen.blit(BG, (self.x_pos_bg, self.y_pos_bg))
-        self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg))
+        self.screen.blit(BG, (self.x_pos_bg, self.y_pos_bg)) #dibujarlo en x y en y
+        self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg)) #vuelve a dibujar
         if self.x_pos_bg <= -image_width:
-            self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg))
+            self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg)) #vuelve a dibujar con cambios en la posicion
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
