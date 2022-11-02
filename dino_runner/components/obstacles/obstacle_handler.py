@@ -1,6 +1,8 @@
-from dino_runner.utils.constants import SMALL_CACTUS
+from dino_runner.utils.constants import SMALL_CACTUS, LARGE_CACTUS, BIRD
 import pygame
+import random
 from dino_runner.components.obstacles.cactus import Cactus
+from dino_runner.components.obstacles.bird import Bird
 
 class ObstacleHandler():
     def __init__(self):
@@ -8,12 +10,18 @@ class ObstacleHandler():
 
     def update(self, speed,dino):
         if len(self.obstacles) == 0:
-            self.obstacles.append(Cactus(SMALL_CACTUS))
+            if random.randint(1,2) == 1:
+                if random.randint(1,2) == 1:
+                    self.obstacles.append(Cactus(LARGE_CACTUS))
+                else:
+                    self.obstacles.append(Cactus(SMALL_CACTUS))  
+            else:
+                self.obstacles.append(Bird(BIRD))
 
         for obstacle in self.obstacles:
             obstacle.update(speed)
             if dino.image_rect.colliderect(obstacle.image_rect): #Colisionan los rectangulos
-                pygame.time.delay(300)
+                pygame.time.delay(1000)
                 self.obstacles.pop() 
 
             if obstacle.image_rect.x < -obstacle.image_rect.width:
