@@ -19,9 +19,15 @@ class ObstacleHandler():
                 self.obstacles.append(Bird(BIRD))
 
         for obstacle in self.obstacles:
-            obstacle.update(speed)
+            obstacle.update(speed) 
+
             if dino.image_rect.colliderect(obstacle.image_rect): #Colisionan los rectangulos
+                #print("dino ", dino.image_rect)
+                #print("obs ",obstacle.image_rect)
+                dino.dino_dead = True
+                dino.dead()
                 pygame.time.delay(1000)
+                dino.dino_dead = False
                 self.obstacles.pop() 
 
             if obstacle.image_rect.x < -obstacle.image_rect.width:
