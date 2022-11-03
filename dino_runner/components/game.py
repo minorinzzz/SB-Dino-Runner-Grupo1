@@ -8,6 +8,7 @@ from dino_runner.utils.text_utils import get_text_element
 
 class Game:
     SECONDS_ANIMATION = 10
+    MAX_LIVES = 3
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(TITLE)
@@ -19,12 +20,19 @@ class Game:
         self.obstacle_handler = ObstacleHandler()
         self.playing = False # all the game
         self.start = True #screen start
+        self.running = True
         self.game_speed = 20
         self.x_pos_bg = 0
         self.y_pos_bg = 380
         self.points = 0
         self.max_point = 0
-        self.end_game = False
+        #self.end_game = False
+        self.lives = self.MAX_LIVES
+
+    def execute(self):
+        while self.running:
+            if not self.playing:
+                self.show_menu()
 
     def run(self):
         # Game loop: events - update - draw
@@ -34,6 +42,13 @@ class Game:
             self.update()
             self.draw()
         pygame.quit()
+
+    def reset_attributes(self):
+        self.playing = True
+        self.dinosaur = Dinosaur()
+        self.obstacle_handler = ObstacleHandler()
+        self.start = True
+        self.points = 0
 
     def events(self):
         for event in pygame.event.get():
@@ -45,20 +60,23 @@ class Game:
         dino_event = pygame.key.get_pressed()
         if not self.start:
             self.dinosaur.update(dino_event)
-            self.end_game = self.obstacle_handler.update(self.game_speed,self.dinosaur)
+            self.obstacle_handler.update(self)
+            self.update_score()
             #actualizacion de nubes
             for i in range(0,len(self.clouds)):
                 self.clouds[i].update(self.game_speed + (i*5))
 
-            if self.end_game:
+            if self.lives == 0:
                 if self.points > self.max_point:
                     self.max_point = self.points
-                self.points = 0
+                #self.playing = False
+                self.reset_attributes()
 
         else: # si presiono una de estas comienza el juego
             self.dinosaur.update(dino_event)
             if dino_event[pygame.K_UP] or dino_event[pygame.K_SPACE] or dino_event[pygame.K_KP_ENTER]:
                 self.start = False
+                self.lives = self.MAX_LIVES
  
 
     def draw(self):
@@ -91,12 +109,17 @@ class Game:
         self.x_pos_bg -= self.game_speed
     
     def draw_screen_start(self):
-        message = "Pulse la barra espaciadora para jugar"
+        if self.lives == 0:
+            message= "GAME OVER!!"
+            self.dinosaur.dead()
+        else:
+            message = "Press any key to start"
+        #message = "Pulse la barra espaciadora o UP para jugar"
         start_text, start_rect = get_text_element(message)
         self.screen.blit(start_text,start_rect)
 
     def draw_score(self):
-        self.points += 1
+
         message = "Max points: "+str(self.max_point) +"  Points: " + str(self.points)
         if (self.points>= self.max_point and self.points <= self.max_point +self.SECONDS_ANIMATION) or (self.points>= self.max_point+self.SECONDS_ANIMATION*2 and self.points <= self.max_point +self.SECONDS_ANIMATION*3) or (self.points>= self.max_point+self.SECONDS_ANIMATION*4 and self.points <= self.max_point +self.SECONDS_ANIMATION*5)  :
             points_text, points_rect = get_text_element(message, SCREEN_WIDTH - 200, 50, 25,(137,14,154))
@@ -104,3 +127,37 @@ class Game:
             points_text, points_rect = get_text_element(message, SCREEN_WIDTH - 200, 50, 25)
         
         self.screen.blit(points_text, points_rect)
+    
+    def update_score(self):
+        self.points += 1
+        if self.points % 100 == 0:
+            self.game_speed +=1
+
+    def show_menu(self):
+        self.running = True
+
+        black_color = (0,0,0)
+        self.screen.fill(black_color)
+        self.show_menu_options()
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.playing = False
+                self.running = False 
+                pygame.display.quit()
+                pygame.quit()
+                exit()
+
+            if event.type == pygame.KEYDOWN:
+                self.run()
+
+    def show_menu_options(self):
+        white_color = (255,255,255)
+        if self.points > 0:
+            text, text_rect = get_text_element("GAME OVER!! ", font_size = 40,color=white_color)
+        else:
+            text, text_rect = get_text_element("Press any key to start", font_size = 40,color=white_color)
+       
+        self.screen.blit(text,text_rect)
