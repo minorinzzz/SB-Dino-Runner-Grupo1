@@ -10,7 +10,7 @@ from dino_runner.components.powers.shield import Shield
 
 class Game:
     SECONDS_ANIMATION = 10
-    MAX_LIVES = 4
+    MAX_LIVES_GAME = 4
     GAME_SPEED_INITIAL = 20
     GENERAL_X_POS = 130
     def __init__(self):
@@ -20,6 +20,7 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
         self.dinosaur = Dinosaur()
+        self.max_lives=self.MAX_LIVES_GAME
         self.clouds = [Cloud(),Cloud(),Cloud(),Cloud(),Cloud()]
         self.obstacle_handler = ObstacleHandler()
         self.playing = False # all the game
@@ -31,7 +32,7 @@ class Game:
         self.points = 0
         self.max_point = 0
         #self.end_game = False
-        self.lives = self.MAX_LIVES
+        self.lives = self.MAX_LIVES_GAME
         self.hearts = []
         
     
@@ -59,12 +60,14 @@ class Game:
             #actualizacion de nubes
             for i in range(0,len(self.clouds)):
                 self.clouds[i].update(self.game_speed + (i*5))
-
+            #actualizacion de nubes
             for i in range(0, len(self.hearts)):
                 if i+1>self.lives:
-                    self.hearts[i].update()
+                    self.hearts[i].update(my_type=1)
+                else:
+                    self.hearts[i].update(my_type=2)
                     
-            if self.lives == 0:
+            if self.lives == 0: #aqui me morí totalmente
                 if self.points > self.max_point:
                     self.max_point = self.points
                 #self.playing = False
@@ -74,8 +77,8 @@ class Game:
             self.dinosaur.update(dino_event)
             if dino_event[pygame.K_UP] or dino_event[pygame.K_SPACE] or dino_event[pygame.K_KP_ENTER]:# si presiono una de estas comienza el juego
                 self.start = False
-                self.lives = self.MAX_LIVES
-                for i in range (0,self.MAX_LIVES):
+                self.lives = self.MAX_LIVES_GAME
+                for i in range (0,self.max_lives):
                     self.hearts.append(Heart(120+i*30))
  
     def reset_attributes(self):
@@ -83,6 +86,7 @@ class Game:
         self.dinosaur = Dinosaur()
         self.obstacle_handler = ObstacleHandler()
         self.start = True
+        self.max_lives=self.MAX_LIVES_GAME
         self.points = 0
         self.hearts = []
         self.game_speed=self.GAME_SPEED_INITIAL
@@ -93,10 +97,13 @@ class Game:
         
         if not self.start:
             self.draw_background()
+
             # dibujar todas las nubes
             for i in range(0,len(self.clouds)):
                 self.clouds[i].draw(self.screen)
-            for i in range (0,self.MAX_LIVES):
+
+            #dibujar las vidas
+            for i in range (0,self.max_lives):
                 self.hearts[i].draw(self.screen)
             self.draw_any_message("Lives:",70,50)
             self.draw_powers(self.screen)
@@ -119,14 +126,14 @@ class Game:
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
     
-    def draw_powers(self, screen):
+    def draw_powers(self, screen): # dibuja los poderes dependiendo de los que tiene el dinosaurio
         self.draw_any_message("Power:",75,95)
         for i in range(0, self.dinosaur.dino_hammer):
             Hammer(self.GENERAL_X_POS +i*35, 70).draw(screen)
         if self.dinosaur.dino_shield:
             Shield(self.GENERAL_X_POS, 70).draw(screen)
     
-    def draw_screen_start(self):
+    def draw_screen_start(self): # mi pantalla de inicio y de muerte
         message_any = "Press any key to start"
         #FIN DEL JUEGO, MUERTE
         if self.lives == 0:
@@ -140,6 +147,7 @@ class Game:
              self.draw_any_message(message_any, y_pos=SCREEN_HEIGHT//2)
         
     def draw_any_message(self,message,x_pos=SCREEN_WIDTH//2,y_pos=SCREEN_HEIGHT//2, tam=30,efect=False, color = (0,0,0)):
+        # dibuja cualquier mensaje en la pantalla
         if not efect:
             message_text, message_rect= get_text_element(message, x_pos,y_pos,tam,color)
             self.screen.blit(message_text,message_rect)    
@@ -149,7 +157,8 @@ class Game:
             else:
                 points_text, points_rect = get_text_element(message, SCREEN_WIDTH - 200, 50, 25)
             self.screen.blit(points_text, points_rect)
-    def update_score(self):
+
+    def update_score(self): #recargar el score
         self.points += 1
         if self.points % 100 == 0:
             self.game_speed +=1

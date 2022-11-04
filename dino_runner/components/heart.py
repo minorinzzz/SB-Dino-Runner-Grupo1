@@ -9,8 +9,13 @@ class Heart(Sprite):
         self.image_rect.x = x_pos
         self.image_rect.y = y_pos
         
-    def update(self):
-        self.image = HEART[1]
+    def update(self,speed = 0,my_type=0):
+        if my_type == 1:
+            self.image = HEART[1]
+        elif my_type ==2:
+            self.image = HEART[0]
+        else:
+            self.image_rect.x -= speed
 
     def draw(self,screen):
         screen.blit(self.image, self.image_rect)
