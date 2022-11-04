@@ -1,4 +1,4 @@
-from dino_runner.utils.constants import RUNNING, JUMPING, DUCKING, DEAD, START
+from dino_runner.utils.constants import RUNNING, JUMPING, DUCKING, DEAD, START, RUNNING_SHIELD, RUNNING_HAMMER, JUMPING_SHIELD, DUCKING_SHIELD, JUMPING_HAMMER, DUCKING_HAMMER
 import pygame
 from pygame.sprite import Sprite
 
@@ -25,13 +25,15 @@ class Dinosaur(Sprite):
         self.dino_dead = False
         self.dino_start = True
         self.dino_velocity=self.INITIAL_VELOCITY
+        self.dino_shield = False
+        self.dino_hammer = 0
 
 #eventos por teclado, como se desplazaria si salto
 #hacer aparecer una nube en la pantalla cloud.png
 #elemento estatico, por ejemplo la vida restante con smallheart
 
     def update(self, dino_event):
-        
+
         if self.dino_jump:
             self.jump()
         if self.dino_run and not self.dino_dead:
@@ -65,14 +67,29 @@ class Dinosaur(Sprite):
         
 
     def run(self):
-        self.image = RUNNING[0] if self.step <= 5 else RUNNING[1]
+        if not self.dino_shield and self.dino_hammer == 0:
+            self.image = RUNNING[0] if self.step <= 5 else RUNNING[1]
+        else:
+            if self.dino_shield:
+                self.image = RUNNING_SHIELD[0] if self.step <= 5 else RUNNING_SHIELD[1]
+            else:
+                self.image = RUNNING_HAMMER[0] if self.step <= 5 else RUNNING_HAMMER[1]
+
         self.image_rect = self.image.get_rect()
         self.image_rect.x = self.DINO_X_POS
         self.image_rect.y = self.DINO_Y_POS
         self.step+=1
         
     def jump(self):
-        self.image = JUMPING 
+
+        if not self.dino_shield and self.dino_hammer == 0:
+            self.image = JUMPING 
+        else:
+            if self.dino_shield:
+                self.image = JUMPING_SHIELD
+            else:
+                self.image = JUMPING_HAMMER
+                
         if self.dino_jump:
             self.image_rect.y -= self.dino_velocity * self.ACELERATION
             self.dino_velocity -= self.REDUCE_VELOCITY
@@ -83,7 +100,15 @@ class Dinosaur(Sprite):
             self.dino_run=True
 
     def duck(self):
-        self.image = DUCKING[0] if self.step <= 5 else DUCKING[1]
+
+        if not self.dino_shield and self.dino_hammer == 0:
+            self.image = DUCKING[0] if self.step <= 5 else DUCKING[1]
+        else:
+            if self.dino_shield:
+                self.image = DUCKING_SHIELD[0] if self.step <= 5 else DUCKING_SHIELD[1]
+            else:
+                self.image = DUCKING_HAMMER[0] if self.step <= 5 else DUCKING_HAMMER[1]
+
         self.image_rect = self.image.get_rect()
         self.image_rect.x = self.DINO_X_POS
         self.image_rect.y = self.DINO_Y_POS_DUCK
