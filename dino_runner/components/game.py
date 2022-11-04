@@ -5,11 +5,14 @@ from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, T
 from dino_runner.components.obstacles.obstacle_handler import ObstacleHandler
 from dino_runner.utils.text_utils import get_text_element
 from dino_runner.components.heart import Heart
+from dino_runner.components.powers.hammer import Hammer
+from dino_runner.components.powers.shield import Shield
 
 class Game:
     SECONDS_ANIMATION = 10
-    MAX_LIVES = 3
+    MAX_LIVES = 4
     GAME_SPEED_INITIAL = 20
+    GENERAL_X_POS = 130
     def __init__(self):
         pygame.init()
         pygame.display.set_caption(TITLE)
@@ -93,14 +96,14 @@ class Game:
             # dibujar todas las nubes
             for i in range(0,len(self.clouds)):
                 self.clouds[i].draw(self.screen)
-
             for i in range (0,self.MAX_LIVES):
                 self.hearts[i].draw(self.screen)
             self.draw_any_message("Lives:",70,50)
+            self.draw_powers(self.screen)
             self.dinosaur.draw(self.screen)
             self.obstacle_handler.draw(self.screen)
             self.draw_any_message("Max points: "+str(self.max_point) +"  Points: " + str(self.points), efect=True)
-
+            
         else:
             self.draw_screen_start()
             self.dinosaur.draw(self.screen)
@@ -115,6 +118,13 @@ class Game:
             self.screen.blit(BG, (image_width + self.x_pos_bg, self.y_pos_bg)) #vuelve a dibujar con cambios en la posicion
             self.x_pos_bg = 0
         self.x_pos_bg -= self.game_speed
+    
+    def draw_powers(self, screen):
+        self.draw_any_message("Power:",75,95)
+        for i in range(0, self.dinosaur.dino_hammer):
+            Hammer(self.GENERAL_X_POS +i*35, 70).draw(screen)
+        if self.dinosaur.dino_shield:
+            Shield(self.GENERAL_X_POS, 70).draw(screen)
     
     def draw_screen_start(self):
         message_any = "Press any key to start"
