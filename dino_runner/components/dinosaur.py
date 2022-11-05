@@ -64,32 +64,15 @@ class Dinosaur(Sprite):
         if self.step > self.MAX_STEP:
             self.step = self.INITIAL_STEP
 
-        
-
     def run(self):
-        if not self.dino_shield and self.dino_hammer == 0:
-            self.image = RUNNING[0] if self.step <= 5 else RUNNING[1]
-        else:
-            if self.dino_shield:
-                self.image = RUNNING_SHIELD[0] if self.step <= 5 else RUNNING_SHIELD[1]
-            else:
-                self.image = RUNNING_HAMMER[0] if self.step <= 5 else RUNNING_HAMMER[1]
-
+        self.change_image()
         self.image_rect = self.image.get_rect()
         self.image_rect.x = self.DINO_X_POS
         self.image_rect.y = self.DINO_Y_POS
         self.step+=1
         
     def jump(self):
-
-        if not self.dino_shield and self.dino_hammer == 0:
-            self.image = JUMPING 
-        else:
-            if self.dino_shield:
-                self.image = JUMPING_SHIELD
-            else:
-                self.image = JUMPING_HAMMER
-                
+        self.change_image()
         if self.dino_jump:
             self.image_rect.y -= self.dino_velocity * self.ACELERATION
             self.dino_velocity -= self.REDUCE_VELOCITY
@@ -100,15 +83,7 @@ class Dinosaur(Sprite):
             self.dino_run=True
 
     def duck(self):
-
-        if not self.dino_shield and self.dino_hammer == 0:
-            self.image = DUCKING[0] if self.step <= 5 else DUCKING[1]
-        else:
-            if self.dino_shield:
-                self.image = DUCKING_SHIELD[0] if self.step <= 5 else DUCKING_SHIELD[1]
-            else:
-                self.image = DUCKING_HAMMER[0] if self.step <= 5 else DUCKING_HAMMER[1]
-
+        self.change_image()
         self.image_rect = self.image.get_rect()
         self.image_rect.x = self.DINO_X_POS
         self.image_rect.y = self.DINO_Y_POS_DUCK
@@ -128,3 +103,22 @@ class Dinosaur(Sprite):
         
     def draw(self,screen):
         screen.blit(self.image, (self.image_rect.x, self.image_rect.y))
+
+    def change_image(self):
+        if self.step <=5: pos=0
+        else: pos=1
+
+        if self.dino_jump:
+            self.image = JUMPING 
+            if self.dino_shield: self.image = JUMPING_SHIELD
+            elif self.dino_hammer: self.image = JUMPING_HAMMER
+
+        if self.dino_run:
+            self.image = RUNNING[pos] 
+            if self.dino_shield: self.image = RUNNING_SHIELD[pos]
+            elif self.dino_hammer: self.image = RUNNING_HAMMER[pos]
+
+        if self.dino_duck:
+            self.image = DUCKING[pos] 
+            if self.dino_shield: self.image = DUCKING_SHIELD[pos]
+            elif self.dino_hammer: self.image = DUCKING_HAMMER[pos]

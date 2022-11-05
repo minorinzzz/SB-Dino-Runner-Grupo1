@@ -3,10 +3,11 @@ import pygame, random
 from dino_runner.components.cloud import Cloud
 from dino_runner.utils.constants import BG, ICON, SCREEN_HEIGHT, SCREEN_WIDTH, TITLE, FPS, GAMEOVER, RESET
 from dino_runner.components.obstacles.obstacle_handler import ObstacleHandler
-from dino_runner.utils.text_utils import get_text_element
+from dino_runner.utils.text_utils import draw_any_message
 from dino_runner.components.heart import Heart
 from dino_runner.components.powers.hammer import Hammer
 from dino_runner.components.powers.shield import Shield
+
 
 class Game:
     SECONDS_ANIMATION = 10
@@ -105,11 +106,18 @@ class Game:
             #dibujar las vidas
             for i in range (0,self.max_lives):
                 self.hearts[i].draw(self.screen)
-            self.draw_any_message("Lives:",70,50)
+            draw_any_message(self.screen, "Lives:",70,50)
             self.draw_powers(self.screen)
             self.dinosaur.draw(self.screen)
             self.obstacle_handler.draw(self.screen)
-            self.draw_any_message("Max points: "+str(self.max_point) +"  Points: " + str(self.points), efect=True)
+
+            message = "Max points: "+str(self.max_point) +"  Points: " + str(self.points)
+
+            if (self.points>= self.max_point and self.points <= self.max_point +self.SECONDS_ANIMATION) or (self.points>= self.max_point+self.SECONDS_ANIMATION*2 and self.points <= self.max_point +self.SECONDS_ANIMATION*3) or (self.points>= self.max_point+self.SECONDS_ANIMATION*4 and self.points <= self.max_point +self.SECONDS_ANIMATION*5)  :
+                draw_any_message(self.screen, message, SCREEN_WIDTH - 200, 50, 25,color=(137,14,154))
+            else:
+                draw_any_message(self.screen, message, SCREEN_WIDTH - 200, 50, 25)
+
             
         else:
             self.draw_screen_start()
@@ -127,7 +135,7 @@ class Game:
         self.x_pos_bg -= self.game_speed
     
     def draw_powers(self, screen): # dibuja los poderes dependiendo de los que tiene el dinosaurio
-        self.draw_any_message("Power:",75,95)
+        draw_any_message(self.screen, "Power:",75,95)
         for i in range(0, self.dinosaur.dino_hammer):
             Hammer(self.GENERAL_X_POS +i*35, 70).draw(screen)
         if self.dinosaur.dino_shield:
@@ -141,62 +149,12 @@ class Game:
             self.dinosaur.dead()
             self.screen.blit(GAMEOVER, (SCREEN_WIDTH//2-190, SCREEN_HEIGHT//2-25)) #dibujarlo en x y en y
             self.screen.blit(RESET,(SCREEN_WIDTH//2-35, SCREEN_HEIGHT//2+25))
-            self.draw_any_message(message2, y_pos = SCREEN_HEIGHT-100)
-            self.draw_any_message(message_any, y_pos=SCREEN_HEIGHT-50)
+            draw_any_message(self.screen,message2, pos_y = SCREEN_HEIGHT-100)
+            draw_any_message(self.screen, message_any, pos_y=SCREEN_HEIGHT-50)
         else: 
-             self.draw_any_message(message_any, y_pos=SCREEN_HEIGHT//2)
-        
-    def draw_any_message(self,message,x_pos=SCREEN_WIDTH//2,y_pos=SCREEN_HEIGHT//2, tam=30,efect=False, color = (0,0,0)):
-        # dibuja cualquier mensaje en la pantalla
-        if not efect:
-            message_text, message_rect= get_text_element(message, x_pos,y_pos,tam,color)
-            self.screen.blit(message_text,message_rect)    
-        else:
-            if (self.points>= self.max_point and self.points <= self.max_point +self.SECONDS_ANIMATION) or (self.points>= self.max_point+self.SECONDS_ANIMATION*2 and self.points <= self.max_point +self.SECONDS_ANIMATION*3) or (self.points>= self.max_point+self.SECONDS_ANIMATION*4 and self.points <= self.max_point +self.SECONDS_ANIMATION*5)  :
-                points_text, points_rect = get_text_element(message, SCREEN_WIDTH - 200, 50, 25,color=(137,14,154))
-            else:
-                points_text, points_rect = get_text_element(message, SCREEN_WIDTH - 200, 50, 25)
-            self.screen.blit(points_text, points_rect)
+             draw_any_message(self.screen, message_any, pos_y=SCREEN_HEIGHT//2)
 
     def update_score(self): #recargar el score
         self.points += 1
         if self.points % 100 == 0:
             self.game_speed +=1
-
-    """--------------CODIGO DE CLASE NO UTILIZADO O MOIFICADO DE UNA FORMA DIFERENTE----------"""
-    """
-    def execute(self):
-        while self.running:
-            if not self.playing:
-                self.show_menu()
-    """
-    """
-    def show_menu(self):
-        self.running = True
-
-        black_color = (0,0,0)
-        self.screen.fill(black_color)
-        self.show_menu_options()
-
-        pygame.display.update()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.playing = False
-                self.running = False 
-                pygame.display.quit()
-                pygame.quit()
-                exit()
-
-            if event.type == pygame.KEYDOWN:
-                self.run()
-
-    def show_menu_options(self):
-        white_color = (255,255,255)
-        if self.points > 0:
-            text, text_rect = get_text_element("GAME OVER!! ", font_size = 40,color=white_color)
-        else:
-            text, text_rect = get_text_element("Press any key to start", font_size = 40,color=white_color)
-       
-        self.screen.blit(text,text_rect)
-    """
